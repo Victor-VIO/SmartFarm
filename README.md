@@ -44,6 +44,8 @@ git clone https://github.com/Victor-VIO/SmartFarm.git
 cd smartfarm
 ```
 
+### This was built on python 3.11.4
+
 ### Step 2: Create Virtual Environment
 
 ```bash
@@ -69,7 +71,7 @@ FLASK_APP=run.py
 FLASK_ENV=development
 SECRET_KEY=your-secret-key-here
 DATABASE_URL=sqlite:///smartfarm.db
-DEBUG=True
+DEBUG=FALSE
 ```
 
 Step 5: Initialize Database
