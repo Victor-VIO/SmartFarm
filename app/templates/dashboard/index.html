@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-to-r from-green-600 to-green-800 dark:from-green-800 dark:to-green-950 text-white rounded-lg shadow-lg p-8 mb-8">
+        <h1 class="text-4xl font-bold mb-2">Welcome, {{ current_user.full_name or current_user.username }}!</h1>
+        <p class="text-green-100">Continue your learning journey with SmartFarm.</p>
+    </div>
+    
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Courses Enrolled</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.courses_enrolled }}</p>
+                </div>
+                <i class="fas fa-book text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Courses Completed</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.courses_completed }}</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Active Mentorships</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.mentorship_active }}</p>
+                </div>
+                <i class="fas fa-user-tie text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enrolled Courses -->
+    <div class="mb-12">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">My Courses</h2>
+        
+        {% if enrollments %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for enrollment in enrollments %}
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                        <div class="bg-gradient-to-r from-green-400 to-green-600 h-32 flex items-center justify-center">
+                            <i class="fas fa-book-open text-white text-5xl"></i>
+                        </div>
+                        
+                        <div class="p-6">
+                            <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{{ enrollment.course.title }}</h3>
+                            
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-gray-600 dark:text-gray-400 text-sm">Progress</span>
+                                    <span class="text-gray-900 dark:text-white font-bold">{{ "%.0f"|format(enrollment.progress_percentage) }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div>
+                                </div>
+                            </div>
+                            
+                            {% if not enrollment.is_completed %}
+                                <a href="{{ url_for('courses.view_course', course_id=enrollment.course.id) }}" class="block w-full bg-green-600 text-white text-center py-2 rounded hover:bg-green-700 transition font-bold">
+                                    Continue Learning
+                                </a>
+                            {% else %}
+                                <div class="space-y-2">
+                                    <div class="block w-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-center py-2 rounded font-bold">
+                                        <i class="fas fa-check-circle mr-2"></i> Completed
+                                    </div>
+                                    <a href="{{ url_for('dashboard.certificates') }}" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700 transition font-bold text-sm">
+                                        <i class="fas fa-certificate mr-1"></i> View Certificate
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
+                <i class="fas fa-inbox text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+                <h3 class="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Courses Enrolled</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">Start your learning journey by enrolling in a course.</p>
+                <a href="{{ url_for('courses.browse') }}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-bold">
+                    Explore Courses
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Mentorship Section -->
+    <div>
+        <h2 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Mentorship</h2>
+        
+        {% if current_user.role == 'student' %}
+            {% if mentorships %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {% for req in mentorships %}
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                    {{ req.mentor.full_name or req.mentor.username }}
+                                </h3>
+                                <span class="{% if req.status == 'accepted' %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200{% elif req.status == 'pending' %}bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200{% endif %} px-3 py-1 rounded-full text-sm font-bold capitalize">
+                                    {{ req.status }}
+                                </span>
+                            </div>
+                            
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                                {{ req.mentor.expertise or 'Agriculture Expert' }}
+                            </p>
+                            
+                            {% if req.status == 'accepted' %}
+                            <a href="{{ url_for('mentorship.chat', user_id=req.mentor.id) }}" class="w-full bg-green-600 text-white text-center py-2 rounded hover:bg-green-700 transition font-bold block">
+                                    <i class="fas fa-comments mr-2"></i> Message Mentor
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
+                    <i class="fas fa-handshake text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+                    <h3 class="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Active Mentorships</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Connect with a mentor to get personalized guidance.</p>
+                    <a href="{{ url_for('mentorship.browse_mentors') }}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-bold">
+                        Find a Mentor
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Mentor View -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+                <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Mentorship Requests</h3>
+                
+                {% if mentorships %}
+                    <div class="space-y-4">
+                        {% for req in mentorships %}
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-gray-900 dark:text-white">{{ req.requester.full_name or req.requester.username }}</h4>
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm">Requested on {{ req.created_at.strftime('%Y-%m-%d') }}</p>
+                                </div>
+                                
+                                {% if req.status == 'pending' %}
+                                    <div class="flex space-x-2">
+                                        <form method="POST" action="{{ url_for('mentorship.respond_to_request', request_id=req.id) }}" class="inline">
+                                            <input type="hidden" name="action" value="accept">
+                                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition font-bold">
+                                                Accept
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('mentorship.respond_to_request', request_id=req.id) }}" class="inline">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition font-bold">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span class="{% if req.status == 'accepted' %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200{% endif %} px-3 py-1 rounded-full text-sm font-bold capitalize">
+                                        {{ req.status }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600 dark:text-gray-400 text-center py-8">No mentorship requests yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

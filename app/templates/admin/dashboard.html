@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+        <a href="{{ url_for('admin.create_course') }}" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-bold">
+            <i class="fas fa-plus mr-2"></i> Create Course
+        </a>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Total Users</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.total_users }}</p>
+                </div>
+                <i class="fas fa-users text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Total Courses</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.total_courses }}</p>
+                </div>
+                <i class="fas fa-book text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Students</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.total_students }}</p>
+                </div>
+                <i class="fas fa-graduation-cap text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">Mentors</p>
+                    <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ stats.total_mentors }}</p>
+                </div>
+                <i class="fas fa-user-tie text-green-600 dark:text-green-400 text-5xl opacity-20"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Recent Courses -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Recent Courses</h2>
+            <div class="space-y-4">
+                {% for course in recent_courses %}
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
+                        <h3 class="font-bold text-gray-900 dark:text-white">{{ course.title }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">{{ course.created_at.strftime('%Y-%m-%d') }}</p>
+                        <span class="inline-block mt-2 text-xs {% if course.is_published %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200{% else %}bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200{% endif %} px-2 py-1 rounded">
+                            {% if course.is_published %}Published{% else %}Draft{% endif %}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('admin.manage_courses') }}" class="block mt-6 text-green-600 dark:text-green-400 hover:underline font-bold">
+                View All Courses →
+            </a>
+        </div>
+        
+        <!-- Recent Users -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Recent Users</h2>
+            <div class="space-y-4">
+                {% for user in recent_users %}
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
+                        <h3 class="font-bold text-gray-900 dark:text-white">{{ user.full_name or user.username }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">{{ user.email }}</p>
+                        <span class="inline-block mt-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded capitalize">
+                            {{ user.role }}
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('admin.manage_users') }}" class="block mt-6 text-green-600 dark:text-green-400 hover:underline font-bold">
+                View All Users →
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

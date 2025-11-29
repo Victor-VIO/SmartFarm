@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartFarm Training Hub{% endblock %}</title>
+    
+    <!-- User authentication indicator for JavaScript -->
+    {% if current_user.is_authenticated %}
+        <meta name="user-authenticated" content="true">
+    {% endif %}
+    
+    <!-- CRITICAL: Block render until theme is applied -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('smartfarm-theme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    
+    <!-- Tailwind CSS with Dark Mode Configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <style>
+        @layer components {
+            /* Suppress Tailwind CDN warning */
+        }
+    </style>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Smooth theme transition */
+        html {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Dark mode styles */
+        html.dark {
+            color-scheme: dark;
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+        
+        html.light {
+            color-scheme: light;
+            background-color: #ffffff;
+            color: #111827;
+        }
+        
+        .theme-toggle {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            transform: rotate(20deg);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- Navigation Bar -->
+    <nav class="bg-green-600 dark:bg-green-800 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-leaf text-white text-2xl"></i>
+                    <a href="{{ url_for('main.index') }}" class="text-white font-bold text-xl">SmartFarm</a>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{{ url_for('courses.browse') }}" class="text-white hover:text-green-100 transition">Courses</a>
+                    <a href="{{ url_for('mentorship.browse_mentors') }}" class="text-white hover:text-green-100 transition">Mentorship</a>
+                    
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard.index') }}" class="text-white hover:text-green-100 transition">Dashboard</a>
+                        
+                        {% if current_user.role == 'admin' %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="text-white hover:text-green-100 transition">Admin</a>
+                        {% endif %}
+                        
+                        <div class="relative group">
+                            <button class="text-white hover:text-green-100 transition flex items-center space-x-1">
+                                <i class="fas fa-user-circle"></i>
+                                <span>{{ current_user.username }}</span>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                <a href="{{ url_for('dashboard.profile') }}" class="block px-4 py-2 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-700">Profile</a>
+                                <a href="{{ url_for('dashboard.settings') }}" class="block px-4 py-2 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-700">Settings</a>
+                                <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-gray-900 dark:text-white hover:bg-green-100 dark:hover:bg-green-700">Logout</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-white hover:text-green-100 transition">Login</a>
+                        <a href="{{ url_for('auth.register') }}" class="bg-white text-green-600 px-4 py-2 rounded hover:bg-green-50 transition">Register</a>
+                    {% endif %}
+                    
+                    <!-- Theme Toggle Button -->
+                    <button id="themeToggleBtn" class="theme-toggle text-white text-xl focus:outline-none" title="Toggle dark/light mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center space-x-4">
+                    <button id="themeToggleMobileBtn" class="theme-toggle text-white text-xl focus:outline-none" title="Toggle dark/light mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="text-white" onclick="toggleMobileMenu()" id="mobile-menu-btn">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-green-700 dark:bg-green-900">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{{ url_for('courses.browse') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Courses</a>
+                <a href="{{ url_for('mentorship.browse_mentors') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Mentorship</a>
+                
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard.index') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Dashboard</a>
+                    {%if current_user.role == 'admin' %}
+<a href="{{ url_for('admin.dashboard') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Admin</a>
+{% endif %}
+<a href="{{ url_for('auth.logout') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Logout</a>
+{% else %}
+<a href="{{ url_for('auth.login') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Login</a>
+<a href="{{ url_for('auth.register') }}" class="block text-white hover:bg-green-600 px-3 py-2 rounded">Register</a>
+{% endif %}
+</div>
+</div>
+</nav>
+<!-- Flash Messages -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} p-4 mb-4 rounded-lg {% if category == 'success' %}bg-green-100 border-l-4 border-green-500 text-green-700{% elif category == 'danger' %}bg-red-100 border-l-4 border-red-500 text-red-700{% elif category == 'warning' %}bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-blue-100 border-l-4 border-blue-500 text-blue-700{% endif %}" role="alert">
+                    <button type="button" class="float-right text-xl" onclick="this.parentElement.style.display='none';">&times;</button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Main Content -->
+<main class="min-h-screen">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 dark:bg-gray-950 text-white mt-12 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- About -->
+            <div>
+                <h3 class="font-bold text-lg mb-4 flex items-center space-x-2">
+                    <i class="fas fa-leaf text-green-500"></i>
+                    <span>SmartFarm</span>
+                </h3>
+                <p class="text-gray-300">Empowering African youth with agriculture skills and opportunities.</p>
+            </div>
+            
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-gray-300">
+                    <li><a href="{{ url_for('main.index') }}" class="hover:text-green-500 transition">Home</a></li>
+                    <li><a href="{{ url_for('courses.browse') }}" class="hover:text-green-500 transition">Courses</a></li>
+                    <li><a href="{{ url_for('mentorship.browse_mentors') }}" class="hover:text-green-500 transition">Mentors</a></li>
+                    <li><a href="{{ url_for('main.about') }}" class="hover:text-green-500 transition">About</a></li>
+                </ul>
+            </div>
+            
+            <!-- Legal -->
+            <div>
+                <h4 class="font-bold mb-4">Legal</h4>
+                <ul class="space-y-2 text-gray-300">
+                    <li><a href="{{ url_for('main.privacy') }}" class="hover:text-green-500 transition">Privacy Policy</a></li>
+                    <li><a href="{{ url_for('main.terms') }}" class="hover:text-green-500 transition">Terms of Service</a></li>
+                </ul>
+            </div>
+            
+            <!-- Contact -->
+            <div>
+                <h4 class="font-bold mb-4">Contact</h4>
+                <p class="text-gray-300">Email: support@smartfarm.com</p>
+                <p class="text-gray-300">Phone: +1 (555) 123-4567</p>
+                <div class="flex space-x-4 mt-4">
+                    <a href="#" class="text-gray-300 hover:text-green-500 text-2xl"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-gray-300 hover:text-green-500 text-2xl"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-300 hover:text-green-500 text-2xl"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+            <p>&copy; 2025 SmartFarm Training Hub. All rights reserved. Built with <i class="fas fa-heart text-red-500"></i> for African Agriculture.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Theme Management Script -->
+<script>
+    // Initialize theme from localStorage or database preference
+    function initTheme() {
+        // Check if user is logged in
+        const isLoggedIn = document.querySelector('meta[name="user-authenticated"]') !== null;
+        
+        // Get saved theme from localStorage
+        let savedTheme = localStorage.getItem('smartfarm-theme') || 'light';
+        
+        // Apply the theme
+        applyTheme(savedTheme);
+    }
+    
+    // Apply theme to the page
+    function applyTheme(theme) {
+            const html = document.documentElement;
+            
+            console.log('Applying theme:', theme);
+            
+            // Remove both classes first
+            html.classList.remove('dark');
+            html.classList.remove('light');
+            
+            // Add the appropriate class
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                console.log('Dark mode activated. Classes:', html.className);
+            } else {
+                html.classList.add('light');
+                console.log('Light mode activated. Classes:', html.className);
+            }
+            
+            // Force a style recalculation
+            html.style.colorScheme = theme;
+            document.body.style.colorScheme = theme;
+            
+            updateThemeIcons(theme);
+            localStorage.setItem('smartfarm-theme', theme);
+        }
+    
+    // Update all theme toggle icons
+    function updateThemeIcons(theme) {
+        const isDark = theme === 'dark';
+        const icons = document.querySelectorAll('.theme-toggle i');
+        
+        icons.forEach(icon => {
+            if (isDark) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    }
+    
+    // Toggle theme function (called by navbar button)
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        console.log('Toggling from', currentTheme, 'to', newTheme);
+        
+        applyTheme(newTheme);
+        
+        // Send to backend if user is logged in
+        const isLoggedIn = document.querySelector('meta[name="user-authenticated"]') !== null;
+        if (isLoggedIn) {
+            fetch(`/dashboard/theme/${newTheme}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Theme saved to backend:', data);
+            })
+            .catch(err => {
+                console.log('Theme saved to localStorage only:', err);
+            });
+        }
+    }
+    
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    }
+    
+    // Close mobile menu when clicking a link
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.add('hidden');
+            });
+        });
+    });
+    
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', initTheme);
+    window.addEventListener('load', initTheme);
+    
+    // Add event listeners to theme toggle buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeToggleMobileBtn = document.getElementById('themeToggleMobileBtn');
+        
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            console.log('Desktop theme toggle button connected');
+        }
+        
+        if (themeToggleMobileBtn) {
+            themeToggleMobileBtn.addEventListener('click', toggleTheme);
+            console.log('Mobile theme toggle button connected');
+        }
+    });
+</script>
+
+{% block extra_js %}
+
+{% endblock %}
+</body>
+</html>

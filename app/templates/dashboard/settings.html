@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - SmartFarm Training Hub{% endblock %}
+<!-- User authentication indicator for JavaScript -->
+{% if current_user.is_authenticated %}
+<meta name="user-authenticated" content="true">
+{% endif %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-4xl font-bold mb-8 text-gray-900 dark:text-white">Settings</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Sidebar Navigation -->
+        <div class="md:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <a href="{{ url_for('dashboard.profile') }}" class="block px-6 py-4 border-l-4 border-green-600 bg-green-50 dark:bg-gray-700 text-green-700 dark:text-green-400 font-bold">
+                    <i class="fas fa-user mr-2"></i> Profile
+                </a>
+                <a href="{{ url_for('dashboard.edit_profile') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent">
+                    <i class="fas fa-edit mr-2"></i> Edit Profile
+                </a>
+                <a href="{{ url_for('dashboard.settings') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </a>
+                <a href="{{ url_for('dashboard.change_password') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent">
+                    <i class="fas fa-lock mr-2"></i> Change Password
+                </a>
+                <a href="{{ url_for('dashboard.certificates') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent">
+                    <i class="fas fa-certificate mr-2"></i> Certificates
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="md:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Preferences</h2>
+                
+                <!-- Theme Setting -->
+                <div class="mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">Theme</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Choose your preferred color theme.</p>
+                    
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="setThemeFromSettings('light')" id="lightBtn" class="flex items-center space-x-2 px-6 py-3 rounded-lg border-2 transition light-theme-btn {% if current_user.theme == 'light' %}border-green-600 bg-green-50 dark:bg-green-900{% else %}border-gray-300 dark:border-gray-600{% endif %}">
+                            <i class="fas fa-sun"></i>
+                            <span>Light</span>
+                        </button>
+                        <button type="button" onclick="setThemeFromSettings('dark')" id="darkBtn" class="flex items-center space-x-2 px-6 py-3 rounded-lg border-2 transition dark-theme-btn {% if current_user.theme == 'dark' %}border-green-600 bg-green-50 dark:bg-green-900{% else %}border-gray-300 dark:border-gray-600{% endif %}">
+                            <i class="fas fa-moon"></i>
+                            <span>Dark</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Account Security -->
+                <div class="mb-8">
+                    <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">Account Security</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <p class="font-bold text-gray-900 dark:text-white">Email</p>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ current_user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div>
+                                <p class="font-bold text-gray-900 dark:text-white">Password</p>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">Last changed recently</p>
+                            </div>
+                            <a href="{{ url_for('dashboard.change_password') }}" class="text-green-600 dark:text-green-400 hover:underline font-bold">
+                                Change
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setThemeFromSettings(theme) {
+        console.log('Setting theme to:', theme);
+        
+        // Apply theme immediately
+        const html = document.documentElement;
+        if (theme === 'dark') {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('smartfarm-theme', theme);
+        
+        // Update button styles
+        const lightBtn = document.getElementById('lightBtn');
+        const darkBtn = document.getElementById('darkBtn');
+        
+        if (theme === 'light') {
+            lightBtn.classList.add('border-green-600', 'bg-green-50', 'dark:bg-green-900');
+            lightBtn.classList.remove('border-gray-300', 'dark:border-gray-600');
+            darkBtn.classList.remove('border-green-600', 'bg-green-50', 'dark:bg-green-900');
+            darkBtn.classList.add('border-gray-300', 'dark:border-gray-600');
+        } else {
+            darkBtn.classList.add('border-green-600', 'bg-green-50', 'dark:bg-green-900');
+            darkBtn.classList.remove('border-gray-300', 'dark:border-gray-600');
+            lightBtn.classList.remove('border-green-600', 'bg-green-50', 'dark:bg-green-900');
+            lightBtn.classList.add('border-gray-300', 'dark:border-gray-600');
+        }
+        
+        // Update theme icons in navbar
+        const themeIcons = document.querySelectorAll('.theme-toggle i');
+        themeIcons.forEach(icon => {
+            if (theme === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+        
+        // Send to backend
+        fetch(`/dashboard/theme/${theme}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Theme saved to backend:', data);
+        })
+        .catch(err => {
+            console.log('Error saving theme:', err);
+        });
+    }
+</script>
+
+{% endblock %}

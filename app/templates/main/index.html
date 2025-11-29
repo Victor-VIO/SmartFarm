@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Home - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-green-600 to-green-800 dark:from-green-800 dark:to-green-950 text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <!-- Left Content -->
+            <div>
+                <h1 class="text-5xl font-bold mb-4">Learn Modern Agriculture</h1>
+                <p class="text-xl mb-6 text-green-100">
+                    Empower yourself with practical farming skills, connect with expert mentors, and unlock agricultural job opportunities across Africa.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{{ url_for('courses.browse') }}" class="bg-white text-green-600 px-8 py-3 rounded-lg font-bold hover:bg-green-50 transition text-center">
+                        Explore Courses
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-green-600 transition text-center">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Right Image -->
+            <div class="text-center">
+                <i class="fas fa-seedling text-8xl text-green-200"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="bg-gray-50 dark:bg-gray-800 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-green-600 dark:text-green-400">{{ stats.courses }}</div>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Active Courses</p>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-green-600 dark:text-green-400">{{ stats.students }}</div>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Students Learning</p>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-green-600 dark:text-green-400">{{ stats.mentors }}</div>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Expert Mentors</p>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-green-600 dark:text-green-400">10K+</div>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Jobs Posted</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Courses -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Featured Courses</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-8">Start learning from our most popular agriculture training programs.</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for course in featured_courses %}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition overflow-hidden">
+                <div class="bg-gradient-to-r from-green-400 to-green-600 h-40 flex items-center justify-center">
+                    <i class="fas fa-book text-white text-6xl"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{{ course.title }}</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">{{ course.description[:100] }}...</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-3 py-1 rounded">{{ course.level }}</span>
+                        <span class="text-gray-600 dark:text-gray-400 text-sm">{{ course.duration_weeks }} weeks</span>
+                    </div>
+                    <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="block w-full bg-green-600 text-white text-center py-2 rounded hover:bg-green-700 transition font-bold">
+                        View Course
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="text-center mt-12">
+        <a href="{{ url_for('courses.browse') }}" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-bold inline-block">
+            View All Courses
+        </a>
+    </div>
+</div>
+
+<!-- Why SmartFarm Section -->
+<div class="bg-gray-50 dark:bg-gray-800 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-white">Why Choose SmartFarm?</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="text-center">
+                <div class="bg-green-100 dark:bg-green-900 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-video text-green-600 dark:text-green-400 text-3xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">Quality Content</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Expert-designed courses with practical, hands-on agriculture training suitable for all skill levels.
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="text-center">
+                <div class="bg-green-100 dark:bg-green-900 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-tie text-green-600 dark:text-green-400 text-3xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">Expert Mentors</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Learn directly from experienced farmers and agriculture professionals who guide your journey.
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="text-center">
+                <div class="bg-green-100 dark:bg-green-900 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-briefcase text-green-600 dark:text-green-400 text-3xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">Job Opportunities</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Access job listings and connect directly with employers seeking skilled agricultural professionals.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="bg-green-600 dark:bg-green-800 text-white py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Career?</h2>
+        <p class="text-xl mb-8 text-green-100">
+            Join thousands of African youth mastering modern agriculture skills.
+        </p>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="bg-white text-green-600 px-8 py-3 rounded-lg font-bold hover:bg-green-50 transition inline-block">
+                Sign Up Now
+            </a>
+        {% else %}
+            <a href="{{ url_for('courses.browse') }}" class="bg-white text-green-600 px-8 py-3 rounded-lg font-bold hover:bg-green-50 transition inline-block">
+                Start Learning
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

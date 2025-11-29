@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Courses - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Agriculture Courses</h1>
+        <p class="text-gray-600 dark:text-gray-300 text-lg">
+            Explore our comprehensive collection of agriculture training courses designed for all skill levels.
+        </p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Category Filter -->
+            <div>
+                <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Category</label>
+                <select name="category" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Level Filter -->
+            <div>
+                <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Level</label>
+                <select name="level" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="">All Levels</option>
+                    <option value="beginner" {% if selected_level == 'beginner' %}selected{% endif %}>Beginner</option>
+                    <option value="intermediate" {% if selected_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                    <option value="advanced" {% if selected_level == 'advanced' %}selected{% endif %}>Advanced</option>
+                </select>
+            </div>
+            
+            <!-- Search Button -->
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-bold">
+                    <i class="fas fa-search mr-2"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Courses Grid -->
+    {% if courses.items %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {% for course in courses.items %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition overflow-hidden">
+                    <!-- Thumbnail -->
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-48 flex items-center justify-center">
+                        <i class="fas fa-book text-white text-6xl"></i>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white line-clamp-2">{{ course.title }}</h3>
+                        
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                            {{ course.description }}
+                        </p>
+                        
+                        <!-- Instructor -->
+                        {% if course.instructor %}
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                                <i class="fas fa-user-tie mr-2"></i> {{ course.instructor }}
+                            </p>
+                        {% endif %}
+                        
+                        <!-- Meta Info -->
+                        <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                            <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-3 py-1 rounded">
+                                {{ course.level }}
+                            </span>
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">
+                                <i class="fas fa-clock mr-1"></i> {{ course.duration_weeks }} weeks
+                            </span>
+                        </div>
+                        
+                        <!-- Button -->
+                        <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="block w-full bg-green-600 text-white text-center py-2 rounded hover:bg-green-700 transition font-bold">
+                            View Course
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if courses.pages > 1 %}
+            <div class="flex justify-center items-center space-x-2">
+                {% if courses.has_prev %}
+                    <a href="{{ url_for('courses.browse', page=courses.prev_num, category=selected_category, level=selected_level) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        Previous
+                    </a>
+                {% endif %}
+                
+                {% for page_num in courses.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == courses.page %}
+                            <span class="bg-green-600 text-white px-4 py-2 rounded">{{ page_num }}</span>
+                        {% else %}
+                            <a href="{{ url_for('courses.browse', page=page_num, category=selected_category, level=selected_level) }}" class="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded hover:bg-gray-400">
+                                {{ page_num }}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>...</span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if courses.has_next %}
+                    <a href="{{ url_for('courses.browse', page=courses.next_num, category=selected_category, level=selected_level) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-inbox text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+            <h3 class="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Courses Found</h3>
+            <p class="text-gray-600 dark:text-gray-400">Try adjusting your filters or check back later.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

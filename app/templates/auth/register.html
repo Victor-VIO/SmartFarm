@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Register - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+        <div class="text-center mb-8">
+            <i class="fas fa-leaf text-green-600 dark:text-green-400 text-5xl mb-4 block"></i>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">SmartFarm</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Join Our Learning Community</p>
+        </div>
+        
+        <form method="POST" class="space-y-4" id="registerForm">
+            <div>
+                <label for="full_name" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="username" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Username</label>
+                <input type="text" id="username" name="username" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="email" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Email</label>
+                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Password</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" required minlength="7" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500" oninput="checkPasswordStrength()">
+                    <button type="button" onclick="togglePasswordVisibility('password', 'toggleIcon')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none">
+                        <i id="toggleIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="mt-2">
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div id="strengthBar" class="h-full w-0 bg-red-500 transition-all duration-300"></div>
+                        </div>
+                        <span id="strengthText" class="text-xs font-bold text-red-600 dark:text-red-400 w-16">Weak</span>
+                    </div>
+                </div>
+                
+                <div class="mt-3 bg-gray-50 dark:bg-gray-700 p-3 rounded text-xs space-y-1">
+                    <p class="text-gray-600 dark:text-gray-400 font-bold mb-2">Password must have:</p>
+                    <p class="flex items-center"><i id="req-length" class="fas fa-times text-red-500 mr-2 w-4"></i> At least 7 characters</p>
+                    <p class="flex items-center"><i id="req-uppercase" class="fas fa-times text-red-500 mr-2 w-4"></i> At least 1 uppercase letter</p>
+                    <p class="flex items-center"><i id="req-lowercase" class="fas fa-times text-red-500 mr-2 w-4"></i> At least 1 lowercase letter</p>
+                    <p class="flex items-center"><i id="req-number" class="fas fa-times text-red-500 mr-2 w-4"></i> At least 1 number</p>
+                    <p class="flex items-center"><i id="req-special" class="fas fa-times text-red-500 mr-2 w-4"></i> At least 1 special character</p>
+                </div>
+            </div>
+            
+            <div>
+                <label for="confirm_password" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Confirm Password</label>
+                <div class="relative">
+                    <input type="password" id="confirm_password" name="confirm_password" required minlength="7" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <button type="button" onclick="togglePasswordVisibility('confirm_password', 'toggleIcon2')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none">
+                        <i id="toggleIcon2" class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <p id="passwordMatch" class="text-xs text-red-600 dark:text-red-400 mt-1 hidden">Passwords do not match</p>
+            </div>
+            
+            <div>
+                <label for="role" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">I am a...</label>
+                <select id="role" name="role" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="student">Student (Want to learn)</option>
+                    <option value="mentor">Mentor (Want to teach)</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="submitBtn" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-bold mt-6" disabled>
+                Create Account
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 dark:text-gray-300">
+                Already have an account? 
+                <a href="{{ url_for('auth.login') }}" class="text-green-600 dark:text-green-400 hover:underline font-bold">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+    
+    function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        let strength = 0;
+        let requirements = {
+            length: false,
+            uppercase: false,
+            lowercase: false,
+            number: false,
+            special: false
+        };
+        
+        if (password.length >= 7) {
+            strength += 20;
+            requirements.length = true;
+        }
+        
+        if (/[A-Z]/.test(password)) {
+            strength += 20;
+            requirements.uppercase = true;
+        }
+        
+        if (/[a-z]/.test(password)) {
+            strength += 20;
+            requirements.lowercase = true;
+        }
+        
+        if (/[0-9]/.test(password)) {
+            strength += 20;
+            requirements.number = true;
+        }
+        
+        if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            strength += 20;
+            requirements.special = true;
+        }
+        
+        strengthBar.style.width = strength + '%';
+        
+        if (strength < 40) {
+            strengthText.textContent = 'Weak';
+            strengthText.className = 'text-xs font-bold text-red-600 dark:text-red-400 w-16';
+            strengthBar.className = 'h-full w-full bg-red-500 transition-all duration-300';
+        } else if (strength < 60) {
+            strengthText.textContent = 'Fair';
+            strengthText.className = 'text-xs font-bold text-yellow-600 dark:text-yellow-400 w-16';
+            strengthBar.className = 'h-full w-full bg-yellow-500 transition-all duration-300';
+        } else if (strength < 80) {
+            strengthText.textContent = 'Good';
+            strengthText.className = 'text-xs font-bold text-blue-600 dark:text-blue-400 w-16';
+            strengthBar.className = 'h-full w-full bg-blue-500 transition-all duration-300';
+        } else {
+            strengthText.textContent = 'Strong';
+            strengthText.className = 'text-xs font-bold text-green-600 dark:text-green-400 w-16';
+            strengthBar.className = 'h-full w-full bg-green-500 transition-all duration-300';
+        }
+        
+        updateRequirement('req-length', requirements.length);
+        updateRequirement('req-uppercase', requirements.uppercase);
+        updateRequirement('req-lowercase', requirements.lowercase);
+        updateRequirement('req-number', requirements.number);
+        updateRequirement('req-special', requirements.special);
+        
+        const allRequirementsMet = Object.values(requirements).every(val => val === true);
+        const passwordMatch = document.getElementById('password').value === document.getElementById('confirm_password').value;
+        
+        submitBtn.disabled = !(allRequirementsMet && passwordMatch && password.length > 0);
+        
+        checkPasswordMatch();
+    }
+    
+    function updateRequirement(elementId, isMet) {
+        const element = document.getElementById(elementId);
+        if (isMet) {
+            element.className = 'fas fa-check text-green-500 mr-2 w-4';
+        } else {
+            element.className = 'fas fa-times text-red-500 mr-2 w-4';
+        }
+    }
+    
+    function checkPasswordMatch() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const passwordMatchMsg = document.getElementById('passwordMatch');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (confirmPassword.length > 0) {
+            if (password === confirmPassword) {
+                passwordMatchMsg.classList.add('hidden');
+            } else {
+                passwordMatchMsg.classList.remove('hidden');
+            }
+        } else {
+            passwordMatchMsg.classList.add('hidden');
+        }
+        
+        const passwordInput = document.getElementById('password').value;
+        checkPasswordStrength();
+    }
+    
+    document.getElementById('password').addEventListener('input', checkPasswordStrength);
+    document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+<!-- {% extends "base.html" %}
+
+{% block title %}Register - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+        <div class="text-center mb-8">
+            <i class="fas fa-leaf text-green-600 dark:text-green-400 text-5xl mb-4 block"></i>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">SmartFarm</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">Join Our Learning Community</p>
+        </div>
+        
+        <form method="POST" class="space-y-4">
+            <div>
+                <label for="full_name" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="username" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Username</label>
+                <input type="text" id="username" name="username" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="email" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Email</label>
+                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Password</label>
+                <input type="password" id="password" name="password" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="confirm_password" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div>
+                <label for="role" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">I am a...</label>
+                <select id="role" name="role" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="student">Student (Want to learn)</option>
+                    <option value="mentor">Mentor (Want to teach)</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-bold mt-6">
+                Create Account
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 dark:text-gray-300">
+                Already have an account? 
+                <a href="{{ url_for('auth.login') }}" class="text-green-600 dark:text-green-400 hover:underline font-bold">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %} -->

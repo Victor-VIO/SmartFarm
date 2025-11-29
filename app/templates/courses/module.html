@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.title }} - {{ course.title }}{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Module Header -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+                <a href="{{ url_for('courses.view_course', course_id=course.id) }}" class="text-green-600 dark:text-green-400 hover:underline mb-4 inline-block">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Course
+                </a>
+                
+                <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white">{{ module.title }}</h1>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Module {{ module.order }} of {{ modules|length }}</p>
+                
+                {% if module.description %}
+                    <p class="text-gray-600 dark:text-gray-300">{{ module.description }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Video Section -->
+            {% if module.video_url %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Lesson Video</h2>
+                    <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-lg">
+                        <iframe 
+                            src="{{ module.video_url }}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                            class="absolute top-0 left-0 w-full h-full">
+                        </iframe>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Content Section -->
+            {% if module.content %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Lesson Content</h2>
+                    <div class="prose dark:prose-invert max-w-none">
+                        {{ module.content|safe }}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Complete Module Button -->
+            <!-- Complete Module Button -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+              {% if not enrollment.is_completed %}
+                  <form method="POST" action="{{ url_for('courses.complete_module', course_id=course.id, module_id=module.id) }}" id="completeForm">
+                      <button type="button" onclick="completeModule()" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-bold">
+                          <i class="fas fa-check-circle mr-2"></i> Mark as Complete
+                      </button>
+                  </form>
+              {% else %}
+                  <div class="bg-green-100 dark:bg-green-900 border-l-4 border-green-600 p-4">
+                      <p class="text-green-800 dark:text-green-200 font-bold">
+                          <i class="fas fa-check-circle mr-2"></i>
+                          You have completed this course!
+                      </p>
+                      <a href="{{ url_for('dashboard.certificates') }}" class="block mt-3 text-green-600 dark:text-green-400 hover:underline font-bold">
+                          View your certificate →
+                      </a>
+                  </div>
+              {% endif %}
+          </div>
+        
+        <!-- Sidebar: Module List -->
+        <div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sticky top-20">
+                <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">{{ course.title }}</h3>
+                
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    {% for m in modules %}
+                        <a href="{{ url_for('courses.view_module', course_id=course.id, module_id=m.id) }}" 
+                           class="block p-3 rounded transition {% if m.id == module.id %}bg-green-100 dark:bg-green-900 border-l-4 border-green-600{% else %}hover:bg-gray-100 dark:hover:bg-gray-700{% endif %}">
+                            <div class="text-sm font-bold text-gray-900 dark:text-white">
+                                Module {{ m.order }}
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-300">{{ m.title }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Progress Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-6">
+                <h3 class="font-bold text-lg mb-4 text-gray-900 dark:text-white">Progress</h3>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-3">
+                    <div class="bg-green-600 h-3 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div>
+                </div>
+                <p class="text-gray-900 dark:text-white font-bold text-center">
+                    {{ "%.0f"|format(enrollment.progress_percentage) }}%
+                </p>
+                <p class="text-gray-600 dark:text-gray-400 text-sm text-center mt-2">
+                    {{ enrollment.modules_completed }} of {{ modules|length }} modules completed
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  function completeModule() {
+      const button = event.target.closest('button');
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+      
+      fetch(`{{ url_for('courses.complete_module', course_id=course.id, module_id=module.id) }}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (data.success) {
+              console.log('Success:', data);
+              showSuccessModal(data.message, data.completed);
+              setTimeout(() => {
+                  location.reload();
+              }, 2500);
+          } else {
+              throw new Error(data.error || 'Unknown error');
+          }
+      })
+      .catch(err => {
+          console.error('Error:', err);
+          showErrorModal('Error: ' + err.message);
+          button.disabled = false;
+          button.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Mark as Complete';
+      });
+  }
+  
+  function showSuccessModal(message, isCompleted) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.id = 'successModal';
+      
+      const celebrationEmoji = isCompleted ? '🎉🏆' : '✅';
+      
+      modal.innerHTML = `
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+              <div class="text-center">
+                  <div class="text-6xl mb-4 animate-bounce">${celebrationEmoji}</div>
+                  <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">${message}</h2>
+                  
+                  ${isCompleted ? `
+                      <div class="bg-green-100 dark:bg-green-900 border-l-4 border-green-600 p-4 mb-6 rounded">
+                          <p class="text-green-800 dark:text-green-200 font-bold">
+                              <i class="fas fa-certificate mr-2"></i>
+                              You earned a certificate!
+                          </p>
+                          <p class="text-sm text-green-700 dark:text-green-300 mt-2">
+                              View it in your certificates section
+                          </p>
+                      </div>
+                  ` : ''}
+                  
+                  <p class="text-gray-600 dark:text-gray-300 mb-6">Redirecting in a moment...</p>
+                  
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                      <div class="bg-green-600 h-1 rounded-full animate-pulse" style="width: 100%; animation: widthAnimation 2s ease-in-out;"></div>
+                  </div>
+              </div>
+          </div>
+          
+          <style>
+              @keyframes widthAnimation {
+                  0% { width: 0%; }
+                  100% { width: 100%; }
+              }
+          </style>
+      `;
+      
+      document.body.appendChild(modal);
+  }
+  
+  function showErrorModal(message) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.id = 'errorModal';
+      
+      modal.innerHTML = `
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+              <div class="text-center">
+                  <div class="text-6xl mb-4">❌</div>
+                  <h2 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Oops!</h2>
+                  <p class="text-gray-700 dark:text-gray-300 mb-6">${message}</p>
+                  <button onclick="document.getElementById('errorModal').remove()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition font-bold w-full">
+                      <i class="fas fa-times mr-2"></i> Close
+                  </button>
+              </div>
+          </div>
+      `;
+      
+      document.body.appendChild(modal);
+  }
+</script>
+{% endblock %}

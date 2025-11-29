@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ mentor.full_name or mentor.username }} - SmartFarm{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Chat Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-circle text-green-600 dark:text-green-400 text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ mentor.full_name or mentor.username }}
+                    </h1>
+                    <p class="text-green-600 dark:text-green-400 font-bold">
+                        {{ mentor.expertise or 'Agriculture Expert' }}
+                    </p>
+                </div>
+            </div>
+            
+            <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-full font-bold">
+                <i class="fas fa-circle text-green-500 mr-2"></i> Online
+            </span>
+        </div>
+    </div>
+    
+    <!-- Chat Container -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col h-screen md:h-96">
+        <!-- Messages Area -->
+        <div id="messagesArea" class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900">
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="flex {% if msg.sender_id == current_user.id %}justify-end{% else %}justify-start{% endif %}">
+                        <div class="{% if msg.sender_id == current_user.id %}bg-green-600 text-white rounded-bl-lg rounded-tl-lg rounded-tr-lg{% else %}bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white rounded-br-lg rounded-tr-lg rounded-tl-lg{% endif %} px-4 py-3 max-w-xs break-words">
+                            <p class="text-sm">{{ msg.content }}</p>
+                            <p class="text-xs {% if msg.sender_id == current_user.id %}text-green-100{% else %}text-gray-600 dark:text-gray-400{% endif %} mt-2">
+                                {{ msg.created_at.strftime('%I:%M %p') }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <div class="text-center">
+                        <i class="fas fa-comments text-6xl mb-3 block opacity-20"></i>
+                        <p class="text-lg">No messages yet</p>
+                        <p class="text-sm mt-2">Start the conversation!</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Message Input Area -->
+        <div class="border-t border-gray-300 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
+            <form id="messageForm" class="flex gap-2">
+                <input 
+                    type="text" 
+                    id="messageInput"
+                    name="content" 
+                    required 
+                    placeholder="Type your message..." 
+                    maxlength="500"
+                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    autofocus
+                >
+                <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition font-bold whitespace-nowrap">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Info Section -->
+    <div class="mt-6 bg-blue-50 dark:bg-blue-900 rounded-lg p-4">
+        <p class="text-sm text-blue-800 dark:text-blue-200">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>Tip:</strong> Messages are visible to both mentor and student. Ask questions about courses, agriculture techniques, or career guidance.
+        </p>
+    </div>
+</div>
+
+<script>
+    const currentUserId = {{ current_user.id }};
+    const mentorId = {{ mentor.id }};
+    
+    // Handle form submission
+    document.getElementById('messageForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const messageInput = document.getElementById('messageInput');
+        const content = messageInput.value.trim();
+        
+        if (!content) return;
+        
+        try {
+            const response = await fetch(`/mentorship/message/${mentorId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `content=${encodeURIComponent(content)}`
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('Message sent successfully');
+                messageInput.value = '';
+                // Reload messages
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } else {
+                alert('Error: ' + (data.error || 'Could not send message'));
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            alert('Error sending message: ' + err.message);
+        }
+    });
+    
+    // Auto-scroll to bottom when page loads
+    window.addEventListener('load', () => {
+        const messagesArea = document.getElementById('messagesArea');
+        if (messagesArea) {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+    });
+    
+    // Auto-refresh messages every 3 seconds
+    setInterval(() => {
+        console.log('Checking for new messages...');
+        location.reload();
+    }, 3000);
+</script>
+
+{% endblock %}

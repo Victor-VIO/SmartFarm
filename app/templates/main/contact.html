@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Contact - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-4xl font-bold mb-8 text-gray-900 dark:text-white">Contact Us</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <i class="fas fa-envelope text-green-600 dark:text-green-400 text-3xl mb-4"></i>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Email</h3>
+            <p class="text-gray-600 dark:text-gray-300">support@smartfarm.com</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <i class="fas fa-phone text-green-600 dark:text-green-400 text-3xl mb-4"></i>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Phone</h3>
+            <p class="text-gray-600 dark:text-gray-300">+1 (555) 123-4567</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <i class="fas fa-map-marker-alt text-green-600 dark:text-green-400 text-3xl mb-4"></i>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Location</h3>
+            <p class="text-gray-600 dark:text-gray-300">Kigali, Rwanda</p>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Send us a Message</h2>
+        <form method="POST" class="space-y-6">
+            <div>
+                <label class="block text-gray-900 dark:text-white font-bold mb-2">Name</label>
+                <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+                <label class="block text-gray-900 dark:text-white font-bold mb-2">Email</label>
+                <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+            <div>
+                <label class="block text-gray-900 dark:text-white font-bold mb-2">Message</label>
+                <textarea name="message" rows="6" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+            </div>
+            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-bold w-full">
+              Send Message
+            </button>
+        </form>
+    </div>
+  </div>
+              {% endblock %}

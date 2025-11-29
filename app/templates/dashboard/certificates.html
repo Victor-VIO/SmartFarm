@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}My Certificates - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Sidebar Navigation -->
+        <div class="md:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden sticky top-20">
+                <a href="{{ url_for('dashboard.profile') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent transition">
+                    <i class="fas fa-user mr-2"></i> Profile
+                </a>
+                <a href="{{ url_for('dashboard.edit_profile') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent transition">
+                    <i class="fas fa-edit mr-2"></i> Edit Profile
+                </a>
+                <a href="{{ url_for('dashboard.settings') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent transition">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </a>
+                <a href="{{ url_for('dashboard.change_password') }}" class="block px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-l-4 border-transparent transition">
+                    <i class="fas fa-lock mr-2"></i> Change Password
+                </a>
+                <a href="{{ url_for('dashboard.certificates') }}" class="block px-6 py-4 border-l-4 border-green-600 bg-green-50 dark:bg-gray-700 text-green-700 dark:text-green-400 font-bold">
+                    <i class="fas fa-certificate mr-2"></i> Certificates
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="md:col-span-2">
+            <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white">My Certificates</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Showcase your achievements and credentials</p>
+            
+            {% if certificates %}
+                <div class="space-y-8">
+                    {% for cert in certificates %}
+                        <!-- Certificate Card -->
+                        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 rounded-lg shadow-2xl p-8 border-4 border-yellow-300 dark:border-yellow-600">
+                            <!-- Certificate Header -->
+                            <div class="text-center mb-8 pb-8 border-b-2 border-yellow-300 dark:border-yellow-600">
+                                <div class="mb-4">
+                                    <i class="fas fa-medal text-6xl text-yellow-500 dark:text-yellow-400"></i>
+                                </div>
+                                <h2 class="text-4xl font-bold text-yellow-900 dark:text-yellow-100 mb-2">Certificate of Completion</h2>
+                                <p class="text-yellow-800 dark:text-yellow-200 text-lg">SmartFarm Training Hub</p>
+                            </div>
+                            
+                            <!-- Certificate Body -->
+                            <div class="text-center mb-8">
+                                <p class="text-yellow-800 dark:text-yellow-200 mb-4">This is to certify that</p>
+                                <h3 class="text-3xl font-bold text-yellow-900 dark:text-yellow-100 mb-6 border-b-2 border-yellow-400 dark:border-yellow-500 pb-3">
+                                    {{ current_user.full_name or current_user.username }}
+                                </h3>
+                                <p class="text-yellow-800 dark:text-yellow-200 mb-2">has successfully completed the course</p>
+                                <h4 class="text-2xl font-bold text-yellow-900 dark:text-yellow-100 mb-6 italic">
+                                    {{ cert.course.title }}
+                                </h4>
+                                <p class="text-yellow-700 dark:text-yellow-300">
+                                    Category: <span class="font-bold">{{ cert.course.category }}</span>
+                                </p>
+                                <p class="text-yellow-700 dark:text-yellow-300 mb-2">
+                                    Duration: <span class="font-bold">{{ cert.course.duration_weeks }} weeks</span>
+                                </p>
+                                <p class="text-yellow-700 dark:text-yellow-300 mb-6">
+                                    Instructor: <span class="font-bold">{{ cert.course.instructor or 'SmartFarm' }}</span>
+                                </p>
+                            </div>
+                            
+                            <!-- Certificate Footer -->
+                            <div class="grid grid-cols-3 gap-8 mt-12 pt-8 border-t-2 border-yellow-300 dark:border-yellow-600 text-center">
+                                <!-- Signature 1 -->
+                                <div>
+                                    <div class="h-16 mb-2 flex items-end justify-center">
+                                        <p class="text-2xl text-yellow-900 dark:text-yellow-100 font-script">~</p>
+                                    </div>
+                                    <p class="text-sm font-bold text-yellow-900 dark:text-yellow-100">SmartFarm Director</p>
+                                </div>
+                                
+                                <!-- Certificate Code -->
+                                <div>
+                                    <p class="text-xs text-yellow-700 dark:text-yellow-300 mb-1">Certificate Code</p>
+                                    <p class="font-mono text-lg font-bold text-yellow-900 dark:text-yellow-100">{{ cert.certificate_code }}</p>
+                                </div>
+                                
+                                <!-- Signature 2 -->
+                                <div>
+                                    <div class="h-16 mb-2 flex items-end justify-center">
+                                        <p class="text-2xl text-yellow-900 dark:text-yellow-100 font-script">~</p>
+                                    </div>
+                                    <p class="text-sm font-bold text-yellow-900 dark:text-yellow-100">Date: {{ cert.issued_at.strftime('%b %d, %Y') }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Seal/Badge -->
+                            <div class="flex justify-center mt-8">
+                                <div class="bg-green-500 dark:bg-green-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-lg">
+                                    <div class="text-center">
+                                        <i class="fas fa-check text-3xl block"></i>
+                                        <p class="text-xs font-bold mt-1">Verified</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex gap-4 mt-8 pt-8 border-t-2 border-yellow-300 dark:border-yellow-600">
+                                <button onclick="downloadCertificate('{{ cert.certificate_code }}', '{{ cert.course.title }}')" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-bold">
+                                    <i class="fas fa-download mr-2"></i> Download PDF
+                                </button>
+                                <button onclick="shareCertificate('{{ cert.certificate_code }}')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-bold">
+                                    <i class="fas fa-share-alt mr-2"></i> Share
+                                </button>
+                                <button onclick="printCertificate()" class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition font-bold">
+                                    <i class="fas fa-print mr-2"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-12 text-center">
+                    <i class="fas fa-award text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+                    <h3 class="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Certificates Yet</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Complete courses to earn certificates and showcase your achievements.</p>
+                    <a href="{{ url_for('courses.browse') }}" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-bold">
+                        <i class="fas fa-book mr-2"></i> Start Learning
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // function downloadCertificate(code, courseTitle) {
+    //     alert('📥 Download feature would generate a PDF certificate.\n\nCertificate Code: ' + code + '\nCourse: ' + courseTitle);
+    //     // In production, this would use html2pdf or similar library
+    // }
+    function downloadCertificate(code, courseTitle) {
+        // Create a hidden link and click it to trigger download
+        const downloadUrl = `/dashboard/certificate/${code}/download`;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `SmartFarm_Certificate_${code}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    function shareCertificate(code) {
+        const shareUrl = window.location.origin + '/certificate/verify/' + code;
+        const text = `I just earned a certificate from SmartFarm Training Hub! Certificate Code: ${code}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'SmartFarm Certificate',
+                text: text,
+                url: shareUrl
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(shareUrl);
+            alert('Certificate link copied to clipboard!\n' + shareUrl);
+        }
+    }
+    
+    function printCertificate() {
+        window.print();
+    }
+  </script>
+
+{% endblock %}

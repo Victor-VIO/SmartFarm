@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Find a Mentor - SmartFarm Training Hub{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Find a Mentor</h1>
+        <p class="text-gray-600 dark:text-gray-300 text-lg">
+            Connect with experienced agriculture professionals who are ready to guide your learning journey.
+        </p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Expertise Area</label>
+                <select name="expertise" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="">All Expertise Areas</option>
+                    {% for exp in expertise_list %}
+                        <option value="{{ exp }}" {% if exp == selected_expertise %}selected{% endif %}>{{ exp }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-bold">
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Mentors Grid -->
+    {% if mentors.items %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {% for mentor in mentors.items %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition overflow-hidden">
+                    <!-- Profile Header -->
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-24"></div>
+                    
+                    <!-- Profile Content -->
+                    <div class="px-6 py-4 -mt-12 relative">
+                        <!-- Avatar Placeholder -->
+                        <div class="bg-green-100 dark:bg-green-900 w-24 h-24 rounded-full flex items-center justify-center mb-4 border-4 border-white dark:border-gray-800">
+                            <i class="fas fa-user-circle text-green-600 dark:text-green-400 text-5xl"></i>
+                        </div>
+                        
+                        <!-- Info -->
+                        <h3 class="font-bold text-xl text-gray-900 dark:text-white mb-1">{{ mentor.full_name or mentor.username }}</h3>
+                        <p class="text-green-600 dark:text-green-400 text-sm font-bold mb-3">
+                            <i class="fas fa-leaf mr-1"></i> {{ mentor.expertise or 'Agriculture Expert' }}
+                        </p>
+                        
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            {{ mentor.bio or 'Experienced agriculture professional ready to mentor you.' }}
+                        </p>
+                        
+                        <!-- View Profile Button -->
+                        <a href="{{ url_for('mentorship.view_mentor', mentor_id=mentor.id) }}" class="block w-full bg-green-600 text-white text-center py-2 rounded hover:bg-green-700 transition font-bold">
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if mentors.pages > 1 %}
+            <div class="flex justify-center items-center space-x-2">
+                {% if mentors.has_prev %}
+                    <a href="{{ url_for('mentorship.browse_mentors', page=mentors.prev_num, expertise=selected_expertise) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        Previous
+                    </a>
+                {% endif %}
+                
+                {% for page_num in mentors.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num == mentors.page %}
+                            <span class="bg-green-600 text-white px-4 py-2 rounded">{{ page_num }}</span>
+                        {% else %}
+                            <a href="{{ url_for('mentorship.browse_mentors', page=page_num, expertise=selected_expertise) }}" class="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded hover:bg-gray-400">
+                                {{ page_num }}
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <span>...</span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if mentors.has_next %}
+                    <a href="{{ url_for('mentorship.browse_mentors', page=mentors.next_num, expertise=selected_expertise) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-user-slash text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+            <h3 class="text-2xl font-bold text-gray-600 dark:text-gray-300 mb-2">No Mentors Found</h3>
+            <p class="text-gray-600 dark:text-gray-400">Try adjusting your filters or check back later.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

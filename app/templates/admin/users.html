@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white">Manage Users</h1>
+        
+        <!-- Filter by Role -->
+        <div class="flex space-x-2">
+            <a href="{{ url_for('admin.manage_users') }}" class="px-4 py-2 rounded {% if not selected_role %}bg-green-600 text-white{% else %}bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white{% endif %} font-bold">
+                All
+            </a>
+            <a href="{{ url_for('admin.manage_users', role='student') }}" class="px-4 py-2 rounded {% if selected_role == 'student' %}bg-green-600 text-white{% else %}bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white{% endif %} font-bold">
+                Students
+            </a>
+            <a href="{{ url_for('admin.manage_users', role='mentor') }}" class="px-4 py-2 rounded {% if selected_role == 'mentor' %}bg-green-600 text-white{% else %}bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white{% endif %} font-bold">
+                Mentors
+            </a>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-100 dark:bg-gray-700">
+                <tr>
+                    <th class="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">Name</th>
+                    <th class="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">Email</th>
+                    <th class="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">Role</th>
+                    <th class="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">Status</th>
+                    <th class="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">Joined</th>
+                    <th class="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                    <tr class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <td class="px-6 py-4 text-gray-900 dark:text-white font-bold">{{ user.full_name or user.username }}</td>
+                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300">{{ user.email }}</td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded capitalize">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs {% if user.is_active %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200{% endif %} px-2 py-1 rounded">
+                                {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 dark:text-gray-300 text-sm">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td class="px-6 py-4">
+                            <form method="POST" action="{{ url_for('admin.toggle_user', user_id=user.id) }}" class="inline">
+                                <button type="submit" class="text-sm {% if user.is_active %}text-red-600 dark:text-red-400 hover:underline{% else %}text-green-600 dark:text-green-400 hover:underline{% endif %} font-bold">
+                                    {% if user.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-600 dark:text-gray-400">
+                            No users found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if users.pages > 1 %}
+        <div class="flex justify-center items-center space-x-2 mt-8">
+            {% if users.has_prev %}
+                <a href="{{ url_for('admin.manage_users', page=users.prev_num, role=selected_role) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Previous</a>
+            {% endif %}
+            
+            {% for page_num in users.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num == users.page %}
+                        <span class="bg-green-600 text-white px-4 py-2 rounded">{{ page_num }}</span>
+                    {% else %}
+                        <a href="{{ url_for('admin.manage_users', page=page_num, role=selected_role) }}" class="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded hover:bg-gray-400">{{ page_num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if users.has_next %}
+                <a href="{{ url_for('admin.manage_users', page=users.next_num, role=selected_role) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
